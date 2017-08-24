@@ -18,8 +18,8 @@ public class NewMDIApplication extends javax.swing.JFrame {
      */
     public NewMDIApplication() {
         initComponents();
-        escondeMenus();
-        pideLogin();
+        //escondeMenus();
+//        pideLogin();
     }
 
     /**
@@ -34,11 +34,15 @@ public class NewMDIApplication extends javax.swing.JFrame {
         desktopPane = new javax.swing.JDesktopPane();
         menuBar = new javax.swing.JMenuBar();
         fileMenu = new javax.swing.JMenu();
-        openMenuItem = new javax.swing.JMenuItem();
-        saveMenuItem = new javax.swing.JMenuItem();
-        saveAsMenuItem = new javax.swing.JMenuItem();
+        jMenuItem2 = new javax.swing.JMenuItem();
+        jMenuItem3 = new javax.swing.JMenuItem();
+        jMenuItem8 = new javax.swing.JMenuItem();
+        jMenuItem4 = new javax.swing.JMenuItem();
+        jMenuItem5 = new javax.swing.JMenuItem();
         editMenu = new javax.swing.JMenu();
         cutMenuItem = new javax.swing.JMenuItem();
+        jMenuItem9 = new javax.swing.JMenuItem();
+        jMenuItem7 = new javax.swing.JMenuItem();
         copyMenuItem = new javax.swing.JMenuItem();
         jMenuItem1 = new javax.swing.JMenuItem();
         helpMenu = new javax.swing.JMenu();
@@ -48,29 +52,42 @@ public class NewMDIApplication extends javax.swing.JFrame {
         desktopPane.setLayout(null);
 
         fileMenu.setMnemonic('f');
-        fileMenu.setText("Facturas");
+        fileMenu.setText("Documentos");
 
-        openMenuItem.setMnemonic('o');
-        openMenuItem.setText("Pendientes");
-        openMenuItem.addActionListener(new java.awt.event.ActionListener() {
+        jMenuItem2.setText("Crear factura");
+        jMenuItem2.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                openMenuItemActionPerformed(evt);
+                jMenuItem2ActionPerformed(evt);
             }
         });
-        fileMenu.add(openMenuItem);
+        fileMenu.add(jMenuItem2);
 
-        saveMenuItem.setMnemonic('s');
-        saveMenuItem.setText("Enviadas");
-        saveMenuItem.addActionListener(new java.awt.event.ActionListener() {
+        jMenuItem3.setText("Crear NCE");
+        jMenuItem3.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                saveMenuItemActionPerformed(evt);
+                jMenuItem3ActionPerformed(evt);
             }
         });
-        fileMenu.add(saveMenuItem);
+        fileMenu.add(jMenuItem3);
 
-        saveAsMenuItem.setMnemonic('a');
-        saveAsMenuItem.setText("Errores");
-        fileMenu.add(saveAsMenuItem);
+        jMenuItem8.setText("Crear NDE");
+        jMenuItem8.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem8ActionPerformed(evt);
+            }
+        });
+        fileMenu.add(jMenuItem8);
+
+        jMenuItem4.setText("Crear factura cambiaria");
+        jMenuItem4.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem4ActionPerformed(evt);
+            }
+        });
+        fileMenu.add(jMenuItem4);
+
+        jMenuItem5.setText("Crear factura especial");
+        fileMenu.add(jMenuItem5);
 
         menuBar.add(fileMenu);
 
@@ -85,6 +102,22 @@ public class NewMDIApplication extends javax.swing.JFrame {
             }
         });
         editMenu.add(cutMenuItem);
+
+        jMenuItem9.setText("Datos de empresa");
+        jMenuItem9.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem9ActionPerformed(evt);
+            }
+        });
+        editMenu.add(jMenuItem9);
+
+        jMenuItem7.setText("Datos de documentos");
+        jMenuItem7.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem7ActionPerformed(evt);
+            }
+        });
+        editMenu.add(jMenuItem7);
 
         copyMenuItem.setMnemonic('y');
         copyMenuItem.setText("Conexión a Oracle");
@@ -120,7 +153,7 @@ public class NewMDIApplication extends javax.swing.JFrame {
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(desktopPane, javax.swing.GroupLayout.DEFAULT_SIZE, 800, Short.MAX_VALUE)
+            .addComponent(desktopPane, javax.swing.GroupLayout.DEFAULT_SIZE, 1020, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -129,21 +162,6 @@ public class NewMDIApplication extends javax.swing.JFrame {
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
-
-    private void openMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_openMenuItemActionPerformed
-        // TODO add your handling code here:
-        Pendientes lista = new Pendientes();
-        lista.setVisible(true);
-        Dimension desktopSize = desktopPane.getSize();
-        Dimension jInternalFrameSize = lista.getSize();
-        lista.setLocation((desktopSize.width - jInternalFrameSize.width)/2,
-            (desktopSize.height- jInternalFrameSize.height)/2);
-        desktopPane.add(lista);
-    }//GEN-LAST:event_openMenuItemActionPerformed
-
-    private void saveMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_saveMenuItemActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_saveMenuItemActionPerformed
 
     private void cutMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cutMenuItemActionPerformed
         // TODO add your handling code here:
@@ -179,6 +197,65 @@ public class NewMDIApplication extends javax.swing.JFrame {
             (desktopSize.height- jInternalFrameSize.height)/2);
         desktopPane.add(frm);
     }//GEN-LAST:event_jMenuItem1ActionPerformed
+
+    private void jMenuItem2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem2ActionPerformed
+            // TODO add your handling code here:
+        NuevaFactura frm = new NuevaFactura();
+        frm.setVisible(true);
+        Dimension desktopSize = desktopPane.getSize();
+        Dimension jInternalFrameSize = frm.getSize();
+        frm.setLocation((desktopSize.width - jInternalFrameSize.width)/2,
+            (desktopSize.height- jInternalFrameSize.height)/2);
+        desktopPane.add(frm);
+    }//GEN-LAST:event_jMenuItem2ActionPerformed
+
+    private void jMenuItem3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem3ActionPerformed
+        // TODO add your handling code here:
+        NuevaNCE frm = new NuevaNCE();
+        frm.setVisible(true);
+        Dimension desktopSize = desktopPane.getSize();
+        Dimension jInternalFrameSize = frm.getSize();
+        frm.setLocation((desktopSize.width - jInternalFrameSize.width)/2,
+            (desktopSize.height- jInternalFrameSize.height)/2);
+        desktopPane.add(frm);
+    }//GEN-LAST:event_jMenuItem3ActionPerformed
+
+    private void jMenuItem4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem4ActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jMenuItem4ActionPerformed
+
+    private void jMenuItem7ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem7ActionPerformed
+        // TODO add your handling code here:
+        RangosDocs frm = new RangosDocs();
+        frm.setVisible(true);
+        Dimension desktopSize = desktopPane.getSize();
+        Dimension jInternalFrameSize = frm.getSize();
+        frm.setLocation((desktopSize.width - jInternalFrameSize.width)/2,
+            (desktopSize.height- jInternalFrameSize.height)/2);
+        desktopPane.add(frm);
+    }//GEN-LAST:event_jMenuItem7ActionPerformed
+
+    private void jMenuItem8ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem8ActionPerformed
+        // TODO add your handling code here:
+NuevaNDE frm = new NuevaNDE();
+        frm.setVisible(true);
+        Dimension desktopSize = desktopPane.getSize();
+        Dimension jInternalFrameSize = frm.getSize();
+        frm.setLocation((desktopSize.width - jInternalFrameSize.width)/2,
+            (desktopSize.height- jInternalFrameSize.height)/2);
+        desktopPane.add(frm);
+    }//GEN-LAST:event_jMenuItem8ActionPerformed
+
+    private void jMenuItem9ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem9ActionPerformed
+        // TODO add your handling code here:
+Datosempresa frm = new Datosempresa();
+        frm.setVisible(true);
+        Dimension desktopSize = desktopPane.getSize();
+        Dimension jInternalFrameSize = frm.getSize();
+        frm.setLocation((desktopSize.width - jInternalFrameSize.width)/2,
+            (desktopSize.height- jInternalFrameSize.height)/2);
+        desktopPane.add(frm);
+    }//GEN-LAST:event_jMenuItem9ActionPerformed
 
     /**
      * @param args the command line arguments
@@ -246,10 +323,14 @@ public class NewMDIApplication extends javax.swing.JFrame {
     private javax.swing.JMenu fileMenu;
     private javax.swing.JMenu helpMenu;
     private javax.swing.JMenuItem jMenuItem1;
+    private javax.swing.JMenuItem jMenuItem2;
+    private javax.swing.JMenuItem jMenuItem3;
+    private javax.swing.JMenuItem jMenuItem4;
+    private javax.swing.JMenuItem jMenuItem5;
+    private javax.swing.JMenuItem jMenuItem7;
+    private javax.swing.JMenuItem jMenuItem8;
+    private javax.swing.JMenuItem jMenuItem9;
     private javax.swing.JMenuBar menuBar;
-    private javax.swing.JMenuItem openMenuItem;
-    private javax.swing.JMenuItem saveAsMenuItem;
-    private javax.swing.JMenuItem saveMenuItem;
     // End of variables declaration//GEN-END:variables
 
 }
