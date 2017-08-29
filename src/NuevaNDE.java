@@ -441,6 +441,8 @@ public class NuevaNDE extends javax.swing.JInternalFrame {
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         // TODO add your handling code here:
+        Thread updateThread = new Thread() {
+                public void run() {
         Map<String,String> params = new HashMap<String,String>();
         params.put("nodocumento",jTextField9.getText());
         params.put("resolucion",jTextField19.getText());
@@ -502,6 +504,9 @@ public class NuevaNDE extends javax.swing.JInternalFrame {
                 }
             }
         }
+                }
+        };
+        updateThread.start();
     }//GEN-LAST:event_jButton1ActionPerformed
 
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed

@@ -45,6 +45,7 @@ public class NuevaNCE extends javax.swing.JInternalFrame {
         Date fecha = new Date();
         SimpleDateFormat df = new SimpleDateFormat("dd/MM/YYYY");
         jTextField10.setText(df.format(fecha));
+        jLabel24.setVisible(false);
         
     }
 
@@ -108,6 +109,7 @@ public class NuevaNCE extends javax.swing.JInternalFrame {
         jComboBox3 = new javax.swing.JComboBox();
         jLabel2 = new javax.swing.JLabel();
         jTextField2 = new javax.swing.JTextField();
+        jLabel24 = new javax.swing.JLabel();
 
         setClosable(true);
 
@@ -219,6 +221,8 @@ public class NuevaNCE extends javax.swing.JInternalFrame {
 
         jLabel2.setText("Fecha factura");
 
+        jLabel24.setText("Enviando información ...");
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -227,7 +231,8 @@ public class NuevaNCE extends javax.swing.JInternalFrame {
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addGap(0, 0, Short.MAX_VALUE)
+                        .addComponent(jLabel24)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(jButton2)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jButton1))
@@ -444,7 +449,8 @@ public class NuevaNCE extends javax.swing.JInternalFrame {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(jButton1)
-                            .addComponent(jButton2)))
+                            .addComponent(jButton2)
+                            .addComponent(jLabel24)))
                     .addGroup(layout.createSequentialGroup()
                         .addGap(22, 22, 22)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
@@ -462,6 +468,9 @@ public class NuevaNCE extends javax.swing.JInternalFrame {
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         // TODO add your handling code here:
+        jLabel24.setVisible(true);
+        Thread updateThread = new Thread() {
+                public void run() {
         Map<String,String> params = new HashMap<String,String>();
         params.put("nodocumento",jTextField9.getText());
         params.put("resolucion",jTextField19.getText());
@@ -513,6 +522,7 @@ public class NuevaNCE extends javax.swing.JInternalFrame {
                     JOptionPane.showMessageDialog(null, "No se guardaron las opciones");
                 }
             }
+            jLabel24.setVisible(false);
             Object[] opcionesdialogo = {"Ver documento","Cancelar"};
             int r = JOptionPane.showOptionDialog(null, "Documento creado","Operación exitosa",JOptionPane.YES_NO_OPTION,JOptionPane.INFORMATION_MESSAGE,null,opcionesdialogo,opcionesdialogo[0]);
             if(r==JOptionPane.YES_NO_OPTION){
@@ -525,6 +535,10 @@ public class NuevaNCE extends javax.swing.JInternalFrame {
                 }
             }
         }
+        jLabel24.setVisible(false);
+                }
+        };
+        updateThread.start();
     }//GEN-LAST:event_jButton1ActionPerformed
 
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
@@ -558,6 +572,7 @@ this.dispose();        // TODO add your handling code here:
     private javax.swing.JLabel jLabel21;
     private javax.swing.JLabel jLabel22;
     private javax.swing.JLabel jLabel23;
+    private javax.swing.JLabel jLabel24;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;

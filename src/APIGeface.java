@@ -317,5 +317,209 @@ public static String enviarDataNDE(Map<String,String> arrData,ArrayList lineas){
         }
         return resultado;
     }
+
+private static String XMLTemplateFCam(Map<String,String> mapData,ArrayList lineas){
+        String plantilla =  "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n" +
+"<FACTURA>\n" +
+"  <ENCABEZADO>\n" +
+"    <NOFACTURA>{nofactura}</NOFACTURA>\n" +
+"    <RESOLUCION>{resolucion}</RESOLUCION>\n" +
+"    <IDSERIE>{idserie}</IDSERIE>\n" +
+"    <EMPRESA>{empresa}</EMPRESA>\n" +
+"    <SUCURSAL>{sucursal}</SUCURSAL>\n" +
+"    <CAJA>{caja}</CAJA>\n" +
+"    <USUARIO>{usuario}</USUARIO>\n" +
+"    <MONEDA>{moneda}</MONEDA>\n" +
+"    <TASACAMBIO>{tasacambio}</TASACAMBIO>\n" +
+"    <GENERACION>{generacion}</GENERACION>\n" +
+"    <FECHAEMISION>{fechaemision}</FECHAEMISION>\n" +
+"    <NOMBRECONTRIBUYENTE><![CDATA[{nombrecontribuyente}]]></NOMBRECONTRIBUYENTE>\n" +
+"    <DIRECCIONCONTRIBUYENTE><![CDATA[{direccioncontribuyente}]]></DIRECCIONCONTRIBUYENTE>\n" +
+"    <NITCONTRIBUYENTE>{nitcontribuyente}</NITCONTRIBUYENTE>\n" +
+"    <VALORNETO>{valorneto}</VALORNETO>\n" +
+"    <IVA>{iva}</IVA>\n" +
+"    <TOTAL>{total}</TOTAL>\n" +
+"    <DESCUENTO>{descuento}</DESCUENTO>\n" +
+"    <EXENTO>{exento}</EXENTO>\n" +
+"  </ENCABEZADO>\n"+
+"  <OPCIONAL>\n" + 
+"  <OPCIONAL1><![CDATA[{dpi}]]></OPCIONAL1>\n" +
+"  <OPCIONAL47>33</OPCIONAL47>\n" +
+"  <OPCIONAL48>ISR</OPCIONAL48>\n" +
+"  <OPCIONAL49>{porcentaje}</OPCIONAL49>\n" +
+"  <OPCIONAL50>{totalisr}</OPCIONAL50>\n" +
+"  <TOTAL_LETRAS><![CDATA[{totalletras}]]></TOTAL_LETRAS>\n" +
+"  </OPCIONAL><DETALLE>\n";
+        Iterator it = mapData.entrySet().iterator();
+        String valorfinal = "";
+        while(it.hasNext()){
+            Map.Entry pair = (Map.Entry)it.next();
+            String k = "\\{"+(String)pair.getKey()+"\\}";
+            String v = (String)pair.getValue();
+            plantilla = plantilla.replaceAll(k,v);
+        }
+        for(int i=0;i<lineas.size();i++){
+            String l = "<LINEA>\n" +
+"      <CANTIDAD>{quantity}</CANTIDAD>\n" +
+"      <DESCRIPCION><![CDATA[{description}]]></DESCRIPCION>\n" +
+"      <METRICA>{metric}</METRICA>\n" +
+"      <PRECIOUNITARIO>{unitprice}</PRECIOUNITARIO>\n" +
+"      <VALOR>{totalvalue}</VALOR></LINEA>\n" ;
+            Map<String,String> tmp = (HashMap<String,String>)lineas.get(i);
+        it = tmp.entrySet().iterator();
+        while(it.hasNext()){
+            Map.Entry pair = (Map.Entry)it.next();
+            l = l.replaceAll("\\{"+pair.getKey()+"\\}", (String)pair.getValue());
+        }            
+            plantilla = plantilla.concat(l);
+        }
+        plantilla = plantilla.concat("</DETALLE></FACTURA>");
+        System.out.println("plantilla: "+plantilla);
+        try{
+            valorfinal = URLEncoder.encode(plantilla,"UTF-8");
+        }catch(Exception e){
+            System.out.println("valores erroneos, imposible codificar");
+            return "";
+        }
+        return valorfinal;
+    }
+
+    public static String enviarDataFcam(Map<String,String> arrData,ArrayList lineas){
+        Map<String,String> opciones = BDLocal.getOpciones();
+        String pathurl = opciones.get("urlapigeface");
+        String resultado="";
+        try{
+            URL url = new URL(pathurl+"RegistraFacturaXML_PDF");
+            URLConnection con = url.openConnection();
+            HttpURLConnection http = (HttpURLConnection)con;
+            http.setRequestMethod("POST"); // PUT is another valid option
+            http.setDoOutput(true);
+            Map<String,String> arguments = new HashMap<>();
+            String valorfinal = "pXmlFactura="+XMLTemplateFCam(arrData,lineas);
+            byte[] out = valorfinal.getBytes(StandardCharsets.UTF_8);
+            int length = out.length;
+            http.setFixedLengthStreamingMode(length);
+            http.setRequestProperty("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
+            http.connect();
+            OutputStream os = http.getOutputStream();
+            os.write(out);
+            
+            BufferedReader in = new BufferedReader(new InputStreamReader(http.getInputStream()));
+            String inputLine;
+            StringBuffer res = new StringBuffer();
+
+            while ((inputLine = in.readLine()) != null) {
+                res.append(inputLine);
+            }
+            in.close();
+            System.out.println("resultado:");
+            resultado = res.toString();
+        }catch(Exception e){
+            System.out.println("Error al enviar la información:"+e.getMessage());
+        }
+        return resultado;
+    }
+    
+private static String XMLTemplateFEsp(Map<String,String> mapData,ArrayList lineas){
+        String plantilla =  "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n" +
+"<FACTURA>\n" +
+"  <ENCABEZADO>\n" +
+"    <NOFACTURA>{nofactura}</NOFACTURA>\n" +
+"    <RESOLUCION>{resolucion}</RESOLUCION>\n" +
+"    <IDSERIE>{idserie}</IDSERIE>\n" +
+"    <EMPRESA>{empresa}</EMPRESA>\n" +
+"    <SUCURSAL>{sucursal}</SUCURSAL>\n" +
+"    <CAJA>{caja}</CAJA>\n" +
+"    <USUARIO>{usuario}</USUARIO>\n" +
+"    <MONEDA>{moneda}</MONEDA>\n" +
+"    <TASACAMBIO>{tasacambio}</TASACAMBIO>\n" +
+"    <GENERACION>{generacion}</GENERACION>\n" +
+"    <FECHAEMISION>{fechaemision}</FECHAEMISION>\n" +
+"    <NOMBRECONTRIBUYENTE><![CDATA[{nombrecontribuyente}]]></NOMBRECONTRIBUYENTE>\n" +
+"    <DIRECCIONCONTRIBUYENTE><![CDATA[{direccioncontribuyente}]]></DIRECCIONCONTRIBUYENTE>\n" +
+"    <NITCONTRIBUYENTE>{nitcontribuyente}</NITCONTRIBUYENTE>\n" +
+"    <VALORNETO>{valorneto}</VALORNETO>\n" +
+"    <IVA>{iva}</IVA>\n" +
+"    <TOTAL>{total}</TOTAL>\n" +
+"    <DESCUENTO>{descuento}</DESCUENTO>\n" +
+"    <EXENTO>{exento}</EXENTO>\n" +
+"  </ENCABEZADO>\n"+
+"  <OPCIONAL>\n" + 
+"  <OPCIONAL1><![CDATA[{dpi}]]></OPCIONAL1>\n" +
+"  <OPCIONAL47>33</OPCIONAL47>\n" +
+"  <OPCIONAL48>ISR</OPCIONAL48>\n" +
+"  <OPCIONAL49>{porcentaje}</OPCIONAL49>\n" +
+"  <OPCIONAL50>{totalisr}</OPCIONAL50>\n" +
+"  <TOTAL_LETRAS><![CDATA[{totalletras}]]></TOTAL_LETRAS>\n" +
+"  </OPCIONAL><DETALLE>\n";
+        Iterator it = mapData.entrySet().iterator();
+        String valorfinal = "";
+        while(it.hasNext()){
+            Map.Entry pair = (Map.Entry)it.next();
+            String k = "\\{"+(String)pair.getKey()+"\\}";
+            String v = (String)pair.getValue();
+            plantilla = plantilla.replaceAll(k,v);
+        }
+        for(int i=0;i<lineas.size();i++){
+            String l = "<LINEA>\n" +
+"      <CANTIDAD>{quantity}</CANTIDAD>\n" +
+"      <DESCRIPCION><![CDATA[{description}]]></DESCRIPCION>\n" +
+"      <METRICA>{metric}</METRICA>\n" +
+"      <PRECIOUNITARIO>{unitprice}</PRECIOUNITARIO>\n" +
+"      <VALOR>{totalvalue}</VALOR></LINEA>\n" ;
+            Map<String,String> tmp = (HashMap<String,String>)lineas.get(i);
+        it = tmp.entrySet().iterator();
+        while(it.hasNext()){
+            Map.Entry pair = (Map.Entry)it.next();
+            l = l.replaceAll("\\{"+pair.getKey()+"\\}", (String)pair.getValue());
+        }            
+            plantilla = plantilla.concat(l);
+        }
+        plantilla = plantilla.concat("</DETALLE></FACTURA>");
+        System.out.println("plantilla: "+plantilla);
+        try{
+            valorfinal = URLEncoder.encode(plantilla,"UTF-8");
+        }catch(Exception e){
+            System.out.println("valores erroneos, imposible codificar");
+            return "";
+        }
+        return valorfinal;
+    }
+
+    public static String enviarDataFEsp(Map<String,String> arrData,ArrayList lineas){
+        Map<String,String> opciones = BDLocal.getOpciones();
+        String pathurl = opciones.get("urlapigeface");
+        String resultado="";
+        try{
+            URL url = new URL(pathurl+"RegistraFacturaXML_PDF");
+            URLConnection con = url.openConnection();
+            HttpURLConnection http = (HttpURLConnection)con;
+            http.setRequestMethod("POST"); // PUT is another valid option
+            http.setDoOutput(true);
+            Map<String,String> arguments = new HashMap<>();
+            String valorfinal = "pXmlFactura="+XMLTemplateFCam(arrData,lineas);
+            byte[] out = valorfinal.getBytes(StandardCharsets.UTF_8);
+            int length = out.length;
+            http.setFixedLengthStreamingMode(length);
+            http.setRequestProperty("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
+            http.connect();
+            OutputStream os = http.getOutputStream();
+            os.write(out);
+            
+            BufferedReader in = new BufferedReader(new InputStreamReader(http.getInputStream()));
+            String inputLine;
+            StringBuffer res = new StringBuffer();
+
+            while ((inputLine = in.readLine()) != null) {
+                res.append(inputLine);
+            }
+            in.close();
+            System.out.println("resultado:");
+            resultado = res.toString();
+        }catch(Exception e){
+            System.out.println("Error al enviar la información:"+e.getMessage());
+        }
+        return resultado;
+    }
     
 }

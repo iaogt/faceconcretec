@@ -18,8 +18,8 @@ public class NewMDIApplication extends javax.swing.JFrame {
      */
     public NewMDIApplication() {
         initComponents();
-        //escondeMenus();
-//        pideLogin();
+        escondeMenus();
+        pideLogin();
     }
 
     /**
@@ -87,6 +87,11 @@ public class NewMDIApplication extends javax.swing.JFrame {
         fileMenu.add(jMenuItem4);
 
         jMenuItem5.setText("Crear factura especial");
+        jMenuItem5.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem5ActionPerformed(evt);
+            }
+        });
         fileMenu.add(jMenuItem5);
 
         menuBar.add(fileMenu);
@@ -222,6 +227,13 @@ public class NewMDIApplication extends javax.swing.JFrame {
 
     private void jMenuItem4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem4ActionPerformed
         // TODO add your handling code here:
+        NuevaFCam frm = new NuevaFCam();
+        frm.setVisible(true);
+        Dimension desktopSize = desktopPane.getSize();
+        Dimension jInternalFrameSize = frm.getSize();
+        frm.setLocation((desktopSize.width - jInternalFrameSize.width)/2,
+            (desktopSize.height- jInternalFrameSize.height)/2);
+        desktopPane.add(frm);
     }//GEN-LAST:event_jMenuItem4ActionPerformed
 
     private void jMenuItem7ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem7ActionPerformed
@@ -256,6 +268,16 @@ Datosempresa frm = new Datosempresa();
             (desktopSize.height- jInternalFrameSize.height)/2);
         desktopPane.add(frm);
     }//GEN-LAST:event_jMenuItem9ActionPerformed
+
+    private void jMenuItem5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem5ActionPerformed
+        NuevaFEsp frm = new NuevaFEsp();
+        frm.setVisible(true);
+        Dimension desktopSize = desktopPane.getSize();
+        Dimension jInternalFrameSize = frm.getSize();
+        frm.setLocation((desktopSize.width - jInternalFrameSize.width)/2,
+            (desktopSize.height- jInternalFrameSize.height)/2);
+        desktopPane.add(frm);
+    }//GEN-LAST:event_jMenuItem5ActionPerformed
 
     /**
      * @param args the command line arguments
