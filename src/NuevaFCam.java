@@ -1,14 +1,23 @@
-
-
 import java.awt.Desktop;
 import java.io.File;
+import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 import javax.swing.JOptionPane;
+import javax.swing.event.TableModelEvent;
+import javax.swing.event.TableModelListener;
+import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumnModel;
+import javax.swing.table.TableModel;
+import org.jdatepicker.impl.JDatePanelImpl;
+import org.jdatepicker.impl.JDatePickerImpl;
+import org.jdatepicker.impl.UtilDateModel;
 
 /*
  * To change this license header, choose License Headers in Project Properties.
@@ -20,8 +29,12 @@ import javax.swing.table.TableColumnModel;
  *
  * @author ricardoi
  */
-public class NuevaFCam extends javax.swing.JInternalFrame {
+public class NuevaFCam extends javax.swing.JInternalFrame implements TableModelListener {
     private Map<String, String> opciones;
+    private ArrayList falta= new ArrayList();
+    private boolean enviando=false;
+    private JDatePickerImpl datePicker;
+    private Float sumatotal;
 
     /**
      * Creates new form NuevaFactura
@@ -34,6 +47,14 @@ public class NuevaFCam extends javax.swing.JInternalFrame {
         m.getColumn(2).setMaxWidth(70);
         m.getColumn(3).setMaxWidth(140);
         m.getColumn(4).setMaxWidth(140);
+iniciarData();
+this.add(datePicker);
+        
+        jTable1.getModel().addTableModelListener(this);
+        
+    }
+    
+    private void iniciarData(){
         opciones = BDLocal.getOpciones();
         jTextField2.setText(opciones.get("fcam_resolucion"));
         jTextField3.setText(opciones.get("fcam_serie"));
@@ -43,9 +64,21 @@ public class NuevaFCam extends javax.swing.JInternalFrame {
         jTextField6.setText(opciones.get("empresa_caja"));
         Date fecha = new Date();
         SimpleDateFormat df = new SimpleDateFormat("dd/MM/YYYY");
-        jTextField10.setText(df.format(fecha));
         jLabel20.setVisible(false);
         
+UtilDateModel model = new UtilDateModel();
+        Calendar hoy = new GregorianCalendar();
+model.setDate(hoy.get(Calendar.YEAR),hoy.get(Calendar.MONTH),hoy.get(Calendar.DAY_OF_MONTH));
+model.setSelected(true);
+// Need this...
+Properties p = new Properties();
+p.put("text.today", "Today");
+p.put("text.month", "Month");
+p.put("text.year", "Year");
+JDatePanelImpl datePanel = new JDatePanelImpl(model, p);
+// Don't know about the formatter, but there it is...
+ datePicker = new JDatePickerImpl(datePanel, new DateLabelFormatter());
+datePicker.setBounds(215, 82, 150, 100);
     }
 
     /**
@@ -77,7 +110,6 @@ public class NuevaFCam extends javax.swing.JInternalFrame {
         jTextField8 = new javax.swing.JTextField();
         jLabel10 = new javax.swing.JLabel();
         jLabel11 = new javax.swing.JLabel();
-        jTextField10 = new javax.swing.JTextField();
         jLabel12 = new javax.swing.JLabel();
         jTextField11 = new javax.swing.JTextField();
         jLabel13 = new javax.swing.JLabel();
@@ -94,7 +126,6 @@ public class NuevaFCam extends javax.swing.JInternalFrame {
         jTextField17 = new javax.swing.JTextField();
         jLabel19 = new javax.swing.JLabel();
         jTextField18 = new javax.swing.JTextField();
-        jSeparator1 = new javax.swing.JSeparator();
         jScrollPane1 = new javax.swing.JScrollPane();
         jTable1 = new javax.swing.JTable();
         jButton1 = new javax.swing.JButton();
@@ -109,6 +140,8 @@ public class NuevaFCam extends javax.swing.JInternalFrame {
         jTextField19 = new javax.swing.JTextField();
         jTextField20 = new javax.swing.JTextField();
         jLabel24 = new javax.swing.JLabel();
+        jLabel25 = new javax.swing.JLabel();
+        jComboBox4 = new javax.swing.JComboBox();
 
         setClosable(true);
 
@@ -138,6 +171,8 @@ public class NuevaFCam extends javax.swing.JInternalFrame {
         jLabel8.setText("Moneda");
 
         jLabel9.setText("Tasa cambio");
+
+        jTextField8.setText("1");
 
         jLabel10.setText("Generación");
 
@@ -222,6 +257,10 @@ public class NuevaFCam extends javax.swing.JInternalFrame {
 
         jLabel24.setText("Total en letras:");
 
+        jLabel25.setText("Periodo");
+
+        jComboBox4.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "30 dias", "60 dias" }));
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -262,8 +301,7 @@ public class NuevaFCam extends javax.swing.JInternalFrame {
                                             .addComponent(jTextField4, javax.swing.GroupLayout.PREFERRED_SIZE, 164, javax.swing.GroupLayout.PREFERRED_SIZE)))
                                     .addComponent(jLabel11)
                                     .addGroup(layout.createSequentialGroup()
-                                        .addComponent(jTextField10, javax.swing.GroupLayout.PREFERRED_SIZE, 148, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                        .addGap(154, 154, 154)
                                         .addComponent(jComboBox1, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
                             .addComponent(jTextField2, javax.swing.GroupLayout.PREFERRED_SIZE, 211, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -275,31 +313,17 @@ public class NuevaFCam extends javax.swing.JInternalFrame {
                             .addComponent(jLabel1))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabel10)
-                            .addGroup(layout.createSequentialGroup()
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                                    .addComponent(jComboBox2, 0, 129, Short.MAX_VALUE)
-                                    .addComponent(jLabel5, javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(jTextField5))
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(jTextField6, javax.swing.GroupLayout.PREFERRED_SIZE, 131, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(jLabel6)))))
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(jLabel21)
+                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                                .addComponent(jComboBox2, 0, 129, Short.MAX_VALUE)
+                                .addComponent(jLabel5, javax.swing.GroupLayout.Alignment.LEADING)
+                                .addComponent(jTextField5))
+                            .addComponent(jLabel10))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jTextField9, javax.swing.GroupLayout.PREFERRED_SIZE, 173, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jLabel22)
-                        .addGap(18, 18, 18)
-                        .addComponent(jComboBox3, javax.swing.GroupLayout.PREFERRED_SIZE, 119, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jLabel23)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jTextField19, javax.swing.GroupLayout.PREFERRED_SIZE, 154, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(jSeparator1)
-                        .addGap(120, 120, 120))
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jLabel25)
+                            .addComponent(jTextField6, javax.swing.GroupLayout.PREFERRED_SIZE, 131, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jLabel6)
+                            .addComponent(jComboBox4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
                     .addComponent(jScrollPane1)
                     .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -323,20 +347,33 @@ public class NuevaFCam extends javax.swing.JInternalFrame {
                                 .addComponent(jLabel17)
                                 .addGap(148, 148, 148))
                             .addComponent(jTextField16)))
-                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                        .addGroup(layout.createSequentialGroup()
-                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                .addComponent(jLabel14)
-                                .addComponent(jTextField13, javax.swing.GroupLayout.PREFERRED_SIZE, 201, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                .addComponent(jLabel12)
-                                .addComponent(jTextField11, javax.swing.GroupLayout.PREFERRED_SIZE, 783, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addGap(0, 0, Short.MAX_VALUE))
-                        .addGroup(layout.createSequentialGroup()
-                            .addComponent(jLabel24)
-                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                            .addComponent(jTextField20))))
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(jLabel24)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jTextField20))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(jLabel21)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(jTextField9, javax.swing.GroupLayout.PREFERRED_SIZE, 173, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(jLabel22)
+                                .addGap(18, 18, 18)
+                                .addComponent(jComboBox3, javax.swing.GroupLayout.PREFERRED_SIZE, 119, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(jLabel23)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(jTextField19, javax.swing.GroupLayout.PREFERRED_SIZE, 154, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(layout.createSequentialGroup()
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(jLabel14)
+                                    .addComponent(jTextField13, javax.swing.GroupLayout.PREFERRED_SIZE, 201, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(jLabel12)
+                                    .addComponent(jTextField11, javax.swing.GroupLayout.PREFERRED_SIZE, 783, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                        .addGap(0, 0, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -364,14 +401,15 @@ public class NuevaFCam extends javax.swing.JInternalFrame {
                     .addComponent(jLabel8)
                     .addComponent(jLabel9)
                     .addComponent(jLabel10)
-                    .addComponent(jLabel11))
+                    .addComponent(jLabel11)
+                    .addComponent(jLabel25))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jTextField7, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jComboBox2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jTextField8, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jTextField10, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(jComboBox4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel12)
@@ -385,15 +423,13 @@ public class NuevaFCam extends javax.swing.JInternalFrame {
                     .addComponent(jLabel13)
                     .addComponent(jTextField12, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                        .addComponent(jLabel21)
-                        .addComponent(jTextField9, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addComponent(jLabel22)
-                        .addComponent(jComboBox3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addComponent(jLabel23)
-                        .addComponent(jTextField19, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel21)
+                    .addComponent(jTextField9, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel22)
+                    .addComponent(jComboBox3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel23)
+                    .addComponent(jTextField19, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addGroup(layout.createSequentialGroup()
@@ -438,7 +474,34 @@ public class NuevaFCam extends javax.swing.JInternalFrame {
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         // TODO add your handling code here:
+        if(!enviando){
+ArrayList ArrDatos = new ArrayList();
+sumatotal = 0.0f;
+        for(int i=0;i<jTable1.getRowCount();i++){
+            String dat = (String)jTable1.getValueAt(i, 1);
+            if((dat!=null)&&(dat.length()>0)){
+                Map<String,String> linea = new HashMap<String,String>();
+                String q = (String)jTable1.getValueAt(i,0);
+                if((q==null)||(q.matches(""))) q = "0";
+                linea.put("quantity",q);
+                linea.put("description",(String)jTable1.getValueAt(i,1));
+                q = (String)jTable1.getValueAt(i,2);
+                if((q==null)||(q.matches(""))) q = "UNI";
+                linea.put("metric",q);
+                q = (String)jTable1.getValueAt(i,3);
+                if((q==null)||(q.matches(""))) q = "0";
+                linea.put("unitprice",q);
+               q = (String)jTable1.getValueAt(i,4);
+                if((q==null)||(q.matches(""))) q = "0";
+                linea.put("totalvalue",q);
+                sumatotal = roundDoubleTwoDecimals(sumatotal + Float.valueOf(q));
+                ArrDatos.add(linea);
+            }
+        }
+        if(ArrDatos.size()>0 && valido()){
+        enviando=true;
         jLabel20.setVisible(true);
+        
         Thread updateThread = new Thread() {
                 public void run() {
         Map<String,String> params = new HashMap<String,String>();
@@ -452,7 +515,9 @@ public class NuevaFCam extends javax.swing.JInternalFrame {
         params.put("moneda",(String)jComboBox1.getSelectedItem());
         params.put("tasacambio",jTextField8.getText());
         params.put("generacion",(String)jComboBox2.getSelectedItem());
-        params.put("fechaemision",jTextField10.getText());
+        Date cal = (Date)datePicker.getModel().getValue();
+        SimpleDateFormat format1 = new SimpleDateFormat("dd/MM/yyyy");
+        params.put("fechaemision",format1.format(cal.getTime()));
         params.put("nombrecontribuyente",jTextField11.getText());
         params.put("direccioncontribuyente",jTextField12.getText());
         params.put("nitcontribuyente",jTextField13.getText());
@@ -463,8 +528,13 @@ public class NuevaFCam extends javax.swing.JInternalFrame {
         params.put("exento",jTextField18.getText());
         params.put("dpi",jTextField9.getText());
         params.put("porcentaje",(String)jComboBox3.getSelectedItem());
-        params.put("totalisr",jTextField19.getText());
+        String isr = jTextField19.getText();
+        if(isr.trim().length()<=0){
+            isr = "0.0";
+        }
+        params.put("totalisr",String.valueOf(roundDoubleTwoDecimals(Float.valueOf(isr))));
         params.put("totalletras",jTextField20.getText());
+        params.put("periododias",(String)jComboBox4.getSelectedItem());
         ArrayList ArrDatos = new ArrayList();
         for(int i=0;i<jTable1.getRowCount();i++){
             String dat = (String)jTable1.getValueAt(i, 0);
@@ -480,7 +550,7 @@ public class NuevaFCam extends javax.swing.JInternalFrame {
         }
         String respuesta = APIGeface.enviarDataFcam(params,ArrDatos);
         String archivo = Registro.procesaArchivo(respuesta);
-        if(archivo!=""){ 
+        if((archivo!="")&&(!archivo.startsWith("error"))){ 
             int correlativo = Integer.valueOf(opciones.get("fcam_actual"));
             int maximo = Integer.valueOf(opciones.get("fcam_final"));
             if(correlativo<maximo){
@@ -503,12 +573,32 @@ public class NuevaFCam extends javax.swing.JInternalFrame {
                     System.out.println("Abrir archivo");
                 }
             }
+            reiniciar();
+        }else{
+JOptionPane.showMessageDialog(null, "Se generó un error:"+archivo);
         }
+        enviando=false;
         jLabel20.setVisible(false);
                 }
         };
         updateThread.start();
-
+        }else{
+            String faltan = "";
+            if(ArrDatos.size()<=0){
+                faltan = "-No ha ingresado productos a facturar";
+            }
+            for(int i = 0;i<falta.size();i++){
+                if(i>0){
+                    faltan = faltan + "\r\n";
+                }
+                faltan = faltan + "-"+(String)falta.get(i);
+            }
+            JOptionPane.showMessageDialog(null, "Ingrese los datos solicitados:\r\n"+faltan);
+            falta.clear();
+        }
+        }else{
+                JOptionPane.showMessageDialog(null, "Los datos están siendo enviados");
+        }
     }//GEN-LAST:event_jButton1ActionPerformed
 
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
@@ -519,6 +609,156 @@ this.dispose();        // TODO add your handling code here:
         // TODO add your handling code here:
     }//GEN-LAST:event_jTextField9ActionPerformed
 
+    public static int roundDoubleToUpperInt(double d){
+    return (d%1==0.0f)?(int)d:(int)(d+1);
+}
+    
+public static Float roundDoubleTwoDecimals(float f){
+DecimalFormat decimalFormat = new DecimalFormat("#.##");
+    return Float.valueOf(decimalFormat.format(f)); // output is 102.24
+}
+    
+    public void tableChanged(TableModelEvent e){
+        int row = e.getFirstRow();
+        int col = e.getColumn();
+        TableModel model = (TableModel)e.getSource();
+        Object data = model.getValueAt(row,col);
+        if(col==0){
+            Object o = model.getValueAt(row,3);
+            if(o!=null && data!=null){
+                String num = (String)o;
+                String num2 = (String)data;
+                if(num.matches("-?\\d+(\\.\\d+)?") && num2.matches("-?\\d+(\\.\\d+)?")){
+                    Float precio = Float.valueOf((String)o);
+                    if(precio>0){
+                        model.setValueAt((Object)String.valueOf(roundDoubleTwoDecimals(precio*Float.valueOf((String)data))), row, 4);
+                    }
+                }
+            }
+        }
+        if(col==1){
+
+        }
+        if(col==3){
+            Object o = model.getValueAt(row,0);
+            if(o!=null){
+                String num = (String)o;
+                String num2 = (String)data;
+                if(num.matches("-?\\d+(\\.\\d+)?") && num2.matches("-?\\d+(\\.\\d+)?")){
+                    Float unidades = Float.valueOf(num);
+                    if(unidades>0){
+                        model.setValueAt((Object)String.valueOf(roundDoubleTwoDecimals((unidades*Float.valueOf(num2)))), row, 4);
+                    }
+                }
+            }
+        }
+        if(col==4){
+            
+        }
+    }
+    
+    public boolean valido(){
+
+        boolean res = true;
+        if((" "+jTextField1.getText()).trim().length()<=0){
+            res=false;
+            falta.add("No. Factura");
+        }
+        if((" "+jTextField2.getText()).trim().length()<=0){
+            res=false;
+            falta.add("Resolución");
+        }
+        if((" "+jTextField3.getText()).trim().length()<=0){
+            res=false;
+            falta.add("ID Serie");
+        }
+        if((" "+jTextField4.getText()).trim().length()<=0){
+            res=false;
+            falta.add("ID Empresa");
+        }
+        if((" "+jTextField7.getText()).trim().length()<=0){
+            res=false;
+            falta.add("Usuario");
+        }
+        if((" "+jTextField8.getText()).trim().length()<=0){
+            res=false;
+            falta.add("Tasa de cambio");
+        }
+
+        if(!datePicker.getModel().isSelected()){
+            res=false;
+            falta.add("Fecha emisión");
+        }
+        if((" "+jTextField13.getText()).trim().length()<=0){
+            res=false;
+            falta.add("Nit Contribuyente");
+        }
+        if((" "+jTextField14.getText()).trim().length()<=0){
+            if(jTextField18.getText().trim().length()<=0){        //Si no hay cantidad exento
+                res=false;
+                falta.add("Valor Neto");
+            }
+        }
+        if((" "+jTextField15.getText()).trim().length()<=0){
+            if(jTextField18.getText().trim().length()<=0){        //Si no hay cantidad exento
+                res=false;
+                falta.add("IVA");
+            }
+        }
+        
+        if((" "+jTextField16.getText()).trim().length()<=0){
+            res=false;
+            falta.add("TOTAL");
+        }else{
+            String txtTotal = jTextField16.getText();
+            Float fTotal = Float.valueOf(txtTotal);
+            if(sumatotal.compareTo(fTotal)!=0){
+                res=false;
+                falta.add("Suma de productos no concuerda con total a facturar");
+            }
+        }
+        if((" "+jTextField20.getText()).trim().length()<=0){
+            res=false;
+            falta.add("Total en letras");
+        }
+        Float total = Float.valueOf("0"+jTextField16.getText());
+        Float iva = Float.valueOf("0"+jTextField15.getText());
+        Float neto = Float.valueOf("0"+jTextField14.getText());
+        if(total!=(iva+neto)){
+            res=false;
+            JOptionPane.showMessageDialog(null, "El total no coincide");
+        }
+        return res;
+    }
+    
+    public void reiniciar(){
+    jTable1.removeAll();
+    DefaultTableModel dm = (DefaultTableModel) jTable1.getModel();
+    int rowCount = dm.getRowCount();
+    //Remove rows one by one from the end of the table
+    for (int i = rowCount - 1; i >= 0; i--) {
+        dm.setValueAt("",i, 0);
+        dm.setValueAt("",i, 1);
+        dm.setValueAt("",i, 2);
+        dm.setValueAt("",i, 3);
+        dm.setValueAt("",i, 4);
+    }
+    jTextField1.setText("");
+    jTextField11.setText("");
+    jTextField12.setText("");
+    jTextField13.setText("");
+    jTextField14.setText("");
+    jTextField15.setText("");
+    jTextField16.setText("");
+    jTextField17.setText("");
+    jTextField18.setText("");
+    jTextField19.setText("");
+    jTextField20.setText("");
+    jTextField7.setText("");
+    jTextField8.setText("");
+    jTextField9.setText("");
+iniciarData();
+    }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButton1;
@@ -526,6 +766,7 @@ this.dispose();        // TODO add your handling code here:
     private javax.swing.JComboBox jComboBox1;
     private javax.swing.JComboBox jComboBox2;
     private javax.swing.JComboBox jComboBox3;
+    private javax.swing.JComboBox jComboBox4;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel11;
@@ -543,6 +784,7 @@ this.dispose();        // TODO add your handling code here:
     private javax.swing.JLabel jLabel22;
     private javax.swing.JLabel jLabel23;
     private javax.swing.JLabel jLabel24;
+    private javax.swing.JLabel jLabel25;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
@@ -551,10 +793,8 @@ this.dispose();        // TODO add your handling code here:
     private javax.swing.JLabel jLabel8;
     private javax.swing.JLabel jLabel9;
     private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JSeparator jSeparator1;
     private javax.swing.JTable jTable1;
     private javax.swing.JTextField jTextField1;
-    private javax.swing.JTextField jTextField10;
     private javax.swing.JTextField jTextField11;
     private javax.swing.JTextField jTextField12;
     private javax.swing.JTextField jTextField13;

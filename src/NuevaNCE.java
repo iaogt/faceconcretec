@@ -1,14 +1,26 @@
 
 
+import java.awt.Color;
 import java.awt.Desktop;
 import java.io.File;
+import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 import javax.swing.JOptionPane;
+import javax.swing.event.TableModelEvent;
+import javax.swing.event.TableModelListener;
+import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumnModel;
+import javax.swing.table.TableModel;
+import org.jdatepicker.impl.JDatePanelImpl;
+import org.jdatepicker.impl.JDatePickerImpl;
+import org.jdatepicker.impl.UtilDateModel;
 
 /*
  * To change this license header, choose License Headers in Project Properties.
@@ -20,9 +32,14 @@ import javax.swing.table.TableColumnModel;
  *
  * @author ricardoi
  */
-public class NuevaNCE extends javax.swing.JInternalFrame {
+public class NuevaNCE extends javax.swing.JInternalFrame implements TableModelListener {
 
     private Map<String,String> opciones;
+    private ArrayList falta= new ArrayList();
+    private boolean enviando = false;
+    private JDatePickerImpl datePicker;
+    private JDatePickerImpl datePicker2;
+    private Float sumatotal;
     /**
      * Creates new form NuevaFactura
      */
@@ -35,6 +52,13 @@ public class NuevaNCE extends javax.swing.JInternalFrame {
         m.getColumn(3).setMaxWidth(140);
         m.getColumn(4).setMaxWidth(140);
         
+iniciarData();
+this.add(datePicker2);
+        jTable1.getModel().addTableModelListener(this);
+        
+    }
+    
+    private void iniciarData(){
         opciones = BDLocal.getOpciones();
         jTextField19.setText(opciones.get("nce_resolucion"));
         jTextField20.setText(opciones.get("nce_serie"));
@@ -42,11 +66,23 @@ public class NuevaNCE extends javax.swing.JInternalFrame {
         jTextField4.setText(opciones.get("empresa_codigo"));
         jTextField5.setText(opciones.get("empresa_sucursal"));
         jTextField6.setText(opciones.get("empresa_caja"));
-        Date fecha = new Date();
-        SimpleDateFormat df = new SimpleDateFormat("dd/MM/YYYY");
-        jTextField10.setText(df.format(fecha));
         jLabel24.setVisible(false);
-        
+UtilDateModel model = new UtilDateModel();
+        Calendar hoy = new GregorianCalendar();
+model.setDate(hoy.get(Calendar.YEAR),hoy.get(Calendar.MONTH),hoy.get(Calendar.DAY_OF_MONTH));
+model.setSelected(true);
+// Need this...
+Properties p = new Properties();
+p.put("text.today", "Today");
+p.put("text.month", "Month");
+p.put("text.year", "Year"); 
+JDatePanelImpl datePanel = new JDatePanelImpl(model, p);
+// Don't know about the formatter, but there it is...
+ datePicker = new JDatePickerImpl(datePanel, new DateLabelFormatter());
+datePicker.setBounds(5, 82, 130, 100);
+this.add(datePicker);
+ datePicker2 = new JDatePickerImpl(datePanel, new DateLabelFormatter());
+datePicker2.setBounds(760, 82, 130, 100);
     }
 
     /**
@@ -76,7 +112,6 @@ public class NuevaNCE extends javax.swing.JInternalFrame {
         jTextField8 = new javax.swing.JTextField();
         jLabel10 = new javax.swing.JLabel();
         jLabel11 = new javax.swing.JLabel();
-        jTextField10 = new javax.swing.JTextField();
         jLabel12 = new javax.swing.JLabel();
         jTextField11 = new javax.swing.JTextField();
         jLabel13 = new javax.swing.JLabel();
@@ -108,8 +143,9 @@ public class NuevaNCE extends javax.swing.JInternalFrame {
         jLabel23 = new javax.swing.JLabel();
         jComboBox3 = new javax.swing.JComboBox();
         jLabel2 = new javax.swing.JLabel();
-        jTextField2 = new javax.swing.JTextField();
         jLabel24 = new javax.swing.JLabel();
+        jLabel25 = new javax.swing.JLabel();
+        jTextField2 = new javax.swing.JTextField();
 
         setClosable(true);
 
@@ -143,6 +179,8 @@ public class NuevaNCE extends javax.swing.JInternalFrame {
         jLabel8.setText("Moneda");
 
         jLabel9.setText("Tasa cambio");
+
+        jTextField8.setText("1");
 
         jLabel10.setText("Generación");
 
@@ -223,6 +261,8 @@ public class NuevaNCE extends javax.swing.JInternalFrame {
 
         jLabel24.setText("Enviando información ...");
 
+        jLabel25.setText("Total en letras:");
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -271,7 +311,7 @@ public class NuevaNCE extends javax.swing.JInternalFrame {
                         .addComponent(jSeparator1)
                         .addGap(120, 120, 120))
                     .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                             .addGroup(layout.createSequentialGroup()
                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                     .addComponent(jTextField17, javax.swing.GroupLayout.PREFERRED_SIZE, 199, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -305,10 +345,8 @@ public class NuevaNCE extends javax.swing.JInternalFrame {
                                     .addComponent(jLabel8)
                                     .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, 145, javax.swing.GroupLayout.PREFERRED_SIZE)))
                             .addGroup(layout.createSequentialGroup()
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(jTextField10, javax.swing.GroupLayout.PREFERRED_SIZE, 131, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(jLabel11))
-                                .addGap(18, 18, 18)
+                                .addComponent(jLabel11)
+                                .addGap(59, 59, 59)
                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                     .addComponent(jLabel6)
                                     .addComponent(jTextField6, javax.swing.GroupLayout.PREFERRED_SIZE, 131, javax.swing.GroupLayout.PREFERRED_SIZE))
@@ -327,13 +365,8 @@ public class NuevaNCE extends javax.swing.JInternalFrame {
                                             .addGroup(layout.createSequentialGroup()
                                                 .addGap(2, 2, 2)
                                                 .addComponent(jLabel3)))))
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addGroup(layout.createSequentialGroup()
-                                        .addGap(11, 11, 11)
-                                        .addComponent(jLabel2))
-                                    .addGroup(layout.createSequentialGroup()
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                        .addComponent(jTextField2, javax.swing.GroupLayout.PREFERRED_SIZE, 136, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                                .addGap(11, 11, 11)
+                                .addComponent(jLabel2))
                             .addGroup(layout.createSequentialGroup()
                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                     .addComponent(jLabel13)
@@ -343,7 +376,11 @@ public class NuevaNCE extends javax.swing.JInternalFrame {
                                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                                         .addComponent(jLabel9)
                                         .addGap(26, 26, 26))
-                                    .addComponent(jTextField8, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 105, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                                    .addComponent(jTextField8, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 105, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(jLabel25)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(jTextField2)))
                         .addGap(0, 0, Short.MAX_VALUE)))
                 .addContainerGap())
         );
@@ -402,11 +439,9 @@ public class NuevaNCE extends javax.swing.JInternalFrame {
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(jTextField3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jTextField10, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(jTextField6, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jTextField7, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jTextField2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 24, Short.MAX_VALUE)
+                            .addComponent(jTextField7, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 14, Short.MAX_VALUE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                         .addComponent(jLabel14)
@@ -443,20 +478,24 @@ public class NuevaNCE extends javax.swing.JInternalFrame {
                             .addComponent(jTextField17, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(jTextField18, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 209, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jButton1)
-                            .addComponent(jButton2)
-                            .addComponent(jLabel24)))
+                        .addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(layout.createSequentialGroup()
                         .addGap(22, 22, 22)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(jTextField14, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(jTextField15, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jTextField16, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))))
+                            .addComponent(jTextField16, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel25)
+                    .addComponent(jTextField2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED, 19, Short.MAX_VALUE)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 188, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jButton1)
+                    .addComponent(jButton2)
+                    .addComponent(jLabel24)))
         );
 
         pack();
@@ -468,6 +507,32 @@ public class NuevaNCE extends javax.swing.JInternalFrame {
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         // TODO add your handling code here:
+        if(!enviando){
+ArrayList ArrDatos = new ArrayList();
+sumatotal = 0.0f;
+        for(int i=0;i<jTable1.getRowCount();i++){
+            String dat = (String)jTable1.getValueAt(i, 1);
+            if((dat!=null)&&(dat.length()>0)){
+                Map<String,String> linea = new HashMap<String,String>();
+                String q = (String)jTable1.getValueAt(i,0);
+                if((q==null)||(q.matches(""))) q = "0";
+                linea.put("quantity",q);
+                linea.put("description",(String)jTable1.getValueAt(i,1));
+                q = (String)jTable1.getValueAt(i,2);
+                if((q==null)||(q.matches(""))) q = "UNI";
+                linea.put("metric",q);
+                q = (String)jTable1.getValueAt(i,3);
+                if((q==null)||(q.matches(""))) q = "0";
+                linea.put("unitprice",q);
+               q = (String)jTable1.getValueAt(i,4);
+                if((q==null)||(q.matches(""))) q = "0";
+                linea.put("totalvalue",q);
+                sumatotal = roundDoubleTwoDecimals(sumatotal + Float.valueOf(q));
+                ArrDatos.add(linea);
+            }
+        }
+        if(ArrDatos.size()>0 && valido()){
+        enviando=true;
         jLabel24.setVisible(true);
         Thread updateThread = new Thread() {
                 public void run() {
@@ -476,11 +541,14 @@ public class NuevaNCE extends javax.swing.JInternalFrame {
         params.put("resolucion",jTextField19.getText());
         params.put("idserie",jTextField20.getText());
         params.put("nceconcepto",(String)jComboBox3.getSelectedItem());
-        params.put("fechaemision",jTextField10.getText());
-        
+        Date cal = (Date)datePicker.getModel().getValue();
+        SimpleDateFormat format1 = new SimpleDateFormat("dd/MM/yyyy");
+        params.put("fechaemision",format1.format(cal.getTime()));
         params.put("nofactura",jTextField1.getText());
         params.put("seriefactura",jTextField3.getText());
-        params.put("fechafactura",jTextField2.getText()); 
+        cal = (Date)datePicker2.getModel().getValue();
+        format1 = new SimpleDateFormat("dd/MM/yyyy");
+        params.put("fechafactura",format1.format(cal.getTime()));
         params.put("empresa",jTextField4.getText());
         params.put("sucursal",jTextField5.getText());
         params.put("caja",jTextField6.getText());
@@ -496,22 +564,31 @@ public class NuevaNCE extends javax.swing.JInternalFrame {
         params.put("total",jTextField16.getText());
         params.put("descuento",jTextField17.getText());
         params.put("exento",jTextField18.getText());
+        params.put("totalletras",jTextField2.getText());
         ArrayList ArrDatos = new ArrayList();
         for(int i=0;i<jTable1.getRowCount();i++){
-            String dat = (String)jTable1.getValueAt(i, 0);
-            if((dat!=null)&&(Integer.valueOf(dat)>0)){
+            String dat = (String)jTable1.getValueAt(i, 1);
+            if((dat!=null)&&(dat.length()>0)){
                 Map<String,String> linea = new HashMap<String,String>();
-                linea.put("quantity",(String)jTable1.getValueAt(i,0));
+                String q = (String)jTable1.getValueAt(i,0);
+                if((q==null)||(q.matches(""))) q = "0";
+                linea.put("quantity",q);
                 linea.put("description",(String)jTable1.getValueAt(i,1));
-                linea.put("metric",(String)jTable1.getValueAt(i,2));
-                linea.put("unitprice",(String)jTable1.getValueAt(i,3));
-                linea.put("totalvalue",(String)jTable1.getValueAt(i,4));
+                q = (String)jTable1.getValueAt(i,2);
+                if((q==null)||(q.matches(""))) q = "UNI";
+                linea.put("metric",q);
+                q = (String)jTable1.getValueAt(i,3);
+                if((q==null)||(q.matches(""))) q = "0";
+                linea.put("unitprice",q);
+               q = (String)jTable1.getValueAt(i,4);
+                if((q==null)||(q.matches(""))) q = "0";
+                linea.put("totalvalue",q);
                 ArrDatos.add(linea);
             }
         }
         String respuesta = APIGeface.enviarDataNCE(params,ArrDatos);
         String archivo = Registro.procesaArchivo(respuesta);
-        if(archivo!=""){
+        if((archivo!="")&&(!archivo.startsWith("error"))){ 
             int correlativo = Integer.valueOf(opciones.get("nce_actual"));
             int maximo = Integer.valueOf(opciones.get("nce_final"));
             if(correlativo<maximo){
@@ -531,14 +608,35 @@ public class NuevaNCE extends javax.swing.JInternalFrame {
                 try{
                     d.open(f);
                 }catch(Exception e){
-                    System.out.println("Abrir archivo");
+                    System.out.println("Error al abrir archivo");
                 }
             }
+            reiniciar();
+        }else{
+JOptionPane.showMessageDialog(null, "Se generó un error:"+archivo);
         }
+        enviando=false;
         jLabel24.setVisible(false);
                 }
         };
         updateThread.start();
+        }else{
+            String faltan = "";
+            if(ArrDatos.size()<=0){
+                faltan = "-No ha ingresado productos a facturar";
+            }
+            for(int i = 0;i<falta.size();i++){
+                if(i>0){
+                    faltan = faltan + "\r\n";
+                }
+                faltan = faltan + "-"+(String)falta.get(i);
+            }
+            JOptionPane.showMessageDialog(null, "Ingrese los datos solicitados:\r\n"+faltan);
+            falta.clear();
+        }
+        }else{
+                JOptionPane.showMessageDialog(null, "Los datos están siendo enviados");
+        }
     }//GEN-LAST:event_jButton1ActionPerformed
 
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
@@ -549,6 +647,154 @@ this.dispose();        // TODO add your handling code here:
         // TODO add your handling code here:
     }//GEN-LAST:event_jTextField4ActionPerformed
 
+    public boolean valido(){
+
+        boolean res = true;
+        if((" "+jTextField1.getText()).trim().length()<=0){
+            res=false;
+            falta.add("No. Factura");
+        }
+        if(!datePicker2.getModel().isSelected()){
+            res=false;
+            falta.add("Fecha Emisión Factura");
+        }
+        if((" "+jTextField3.getText()).trim().length()<=0){
+            res=false;
+            falta.add("ID Serie Factura");
+        }
+        if((" "+jTextField4.getText()).trim().length()<=0){
+            res=false;
+            falta.add("ID Empresa");
+        }
+        if((" "+jTextField7.getText()).trim().length()<=0){
+            res=false;
+            falta.add("Usuario");
+        }
+        if((" "+jTextField9.getText()).trim().length()<=0){
+            res=false;
+            falta.add("No. Documento NCE");
+        }
+        if(!datePicker.getModel().isSelected()){
+            res=false;
+            falta.add("Fecha emisión");
+        }
+        if((" "+jTextField13.getText()).trim().length()<=0){
+            res=false;
+            falta.add("Nit Contribuyente");
+        }
+        if((" "+jTextField14.getText()).trim().length()<=0){
+            res=false;
+            falta.add("Valor Neto");
+        }
+        if((" "+jTextField15.getText()).trim().length()<=0){
+            res=false;
+            falta.add("IVA");
+        }
+        if((" "+jTextField16.getText()).trim().length()<=0){
+            res=false;
+            falta.add("TOTAL");
+        }else{
+            String txtTotal = jTextField16.getText();
+            Float fTotal = Float.valueOf(txtTotal);
+            if(sumatotal.compareTo(fTotal)!=0){
+                res=false;
+                falta.add("Suma de productos no concuerda con total a facturar");
+            }
+        }
+        if((" "+jTextField19.getText()).trim().length()<=0){
+            res=false;
+            falta.add("Resolución");
+        }
+        if((" "+jTextField20.getText()).trim().length()<=0){
+            res=false;
+            falta.add("ID Serie");
+        }
+        Float total = Float.valueOf("0"+jTextField16.getText());
+        Float iva = Float.valueOf("0"+jTextField15.getText());
+        Float neto = Float.valueOf("0"+jTextField14.getText());
+        if(total!=(iva+neto)){
+            res=false;
+            JOptionPane.showMessageDialog(null, "El total no coincide");
+        }
+        return res;
+    }
+    
+public static int roundDoubleToUpperInt(double d){
+    return (d%1==0.0f)?(int)d:(int)(d+1);
+}
+
+public static Float roundDoubleTwoDecimals(float f){
+DecimalFormat decimalFormat = new DecimalFormat("#.##");
+    return Float.valueOf(decimalFormat.format(f)); // output is 102.24
+}
+    
+    public void tableChanged(TableModelEvent e){
+        int row = e.getFirstRow();
+        int col = e.getColumn();
+        TableModel model = (TableModel)e.getSource();
+        Object data = model.getValueAt(row,col);
+        if(col==0){
+            Object o = model.getValueAt(row,3);
+            if(o!=null && data!=null){
+                String num = (String)o;
+                String num2 = (String)data;
+                if(num.matches("-?\\d+(\\.\\d+)?") && num2.matches("-?\\d+(\\.\\d+)?")){
+                    Float precio = Float.valueOf((String)o);
+                    if(precio>0){
+                        model.setValueAt((Object)String.valueOf(roundDoubleTwoDecimals(precio*Float.valueOf((String)data))), row, 4);
+                    }
+                }
+            }
+        }
+        if(col==1){
+
+        }
+        if(col==3){
+            Object o = model.getValueAt(row,0);
+            if(o!=null){
+                String num = (String)o;
+                String num2 = (String)data;
+                if(num.matches("-?\\d+(\\.\\d+)?") && num2.matches("-?\\d+(\\.\\d+)?")){
+                    Float unidades = Float.valueOf(num);
+                    if(unidades>0){
+                        model.setValueAt((Object)String.valueOf(roundDoubleTwoDecimals((unidades*Float.valueOf(num2)))), row, 4);
+                    }
+                }
+            }
+        }
+        if(col==4){
+            
+        }
+    }
+    
+    public void reiniciar(){
+    jTable1.removeAll();
+    DefaultTableModel dm = (DefaultTableModel) jTable1.getModel();
+    int rowCount = dm.getRowCount();
+    //Remove rows one by one from the end of the table
+    for (int i = rowCount - 1; i >= 0; i--) {
+        dm.setValueAt("",i, 0);
+        dm.setValueAt("",i, 1);
+        dm.setValueAt("",i, 2);
+        dm.setValueAt("",i, 3);
+        dm.setValueAt("",i, 4);
+    }
+    jTextField1.setText("");
+    jTextField11.setText("");
+    jTextField12.setText("");
+    jTextField13.setText("");
+    jTextField14.setText("");
+    jTextField15.setText("");
+    jTextField16.setText("");
+    jTextField17.setText("");
+    jTextField18.setText("");
+    jTextField3.setText("");
+    jTextField7.setText("");
+    jTextField8.setText("");
+    jTextField9.setText("");
+    jTextField2.setText("");
+    iniciarData();
+    }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButton1;
@@ -573,6 +819,7 @@ this.dispose();        // TODO add your handling code here:
     private javax.swing.JLabel jLabel22;
     private javax.swing.JLabel jLabel23;
     private javax.swing.JLabel jLabel24;
+    private javax.swing.JLabel jLabel25;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
@@ -584,7 +831,6 @@ this.dispose();        // TODO add your handling code here:
     private javax.swing.JSeparator jSeparator1;
     private javax.swing.JTable jTable1;
     private javax.swing.JTextField jTextField1;
-    private javax.swing.JTextField jTextField10;
     private javax.swing.JTextField jTextField11;
     private javax.swing.JTextField jTextField12;
     private javax.swing.JTextField jTextField13;

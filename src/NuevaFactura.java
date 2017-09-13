@@ -1,20 +1,30 @@
 
 
+import java.awt.Color;
 import java.awt.Desktop;
 import java.io.File;
+import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.SwingConstants;
+import javax.swing.border.Border;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumnModel;
 import javax.swing.table.TableModel;
+import org.jdatepicker.impl.JDatePanelImpl;
+import org.jdatepicker.impl.JDatePickerImpl;
+import org.jdatepicker.impl.UtilDateModel;
 
 /*
  * To change this license header, choose License Headers in Project Properties.
@@ -28,6 +38,10 @@ import javax.swing.table.TableModel;
  */
 public class NuevaFactura extends javax.swing.JInternalFrame implements TableModelListener {
     private Map<String, String> opciones;
+    private boolean enviando = false;
+    private ArrayList falta = new ArrayList();
+    private JDatePickerImpl datePicker;
+    private Float sumatotal;
 
     /**
      * Creates new form NuevaFactura
@@ -40,6 +54,12 @@ public class NuevaFactura extends javax.swing.JInternalFrame implements TableMod
         m.getColumn(2).setMaxWidth(70);
         m.getColumn(3).setMaxWidth(140);
         m.getColumn(4).setMaxWidth(140);
+dataInicial();
+this.add(datePicker);
+        jTable1.getModel().addTableModelListener(this);
+    }
+    
+    private void dataInicial(){
         opciones = BDLocal.getOpciones();
         jTextField2.setText(opciones.get("factura_resolucion"));
         jTextField3.setText(opciones.get("factura_serie"));
@@ -47,14 +67,20 @@ public class NuevaFactura extends javax.swing.JInternalFrame implements TableMod
         jTextField4.setText(opciones.get("empresa_codigo"));
         jTextField5.setText(opciones.get("empresa_sucursal"));
         jTextField6.setText(opciones.get("empresa_caja"));
-        Date fecha = new Date();
-        SimpleDateFormat df = new SimpleDateFormat("dd/MM/YYYY");
-        jTextField10.setText(df.format(fecha));
         jLabel20.setVisible(false);
-        jTable1.getModel().addTableModelListener(this);
-        DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
-        centerRenderer.setVerticalAlignment(SwingConstants.TOP);
-        jTable1.getColumnModel().getColumn(1).setCellRenderer( centerRenderer );
+UtilDateModel model = new UtilDateModel();
+        Calendar hoy = new GregorianCalendar();
+model.setDate(hoy.get(Calendar.YEAR),hoy.get(Calendar.MONTH),hoy.get(Calendar.DAY_OF_MONTH));
+model.setSelected(true);
+// Need this...
+Properties p = new Properties();
+p.put("text.today", "Today");
+p.put("text.month", "Month");
+p.put("text.year", "Year"); 
+JDatePanelImpl datePanel = new JDatePanelImpl(model, p);
+// Don't know about the formatter, but there it is...
+ datePicker = new JDatePickerImpl(datePanel, new DateLabelFormatter());
+datePicker.setBounds(215, 81, 150, 100);
     }
 
     /**
@@ -86,7 +112,6 @@ public class NuevaFactura extends javax.swing.JInternalFrame implements TableMod
         jTextField8 = new javax.swing.JTextField();
         jLabel10 = new javax.swing.JLabel();
         jLabel11 = new javax.swing.JLabel();
-        jTextField10 = new javax.swing.JTextField();
         jLabel12 = new javax.swing.JLabel();
         jTextField11 = new javax.swing.JTextField();
         jLabel13 = new javax.swing.JLabel();
@@ -110,6 +135,8 @@ public class NuevaFactura extends javax.swing.JInternalFrame implements TableMod
         jButton2 = new javax.swing.JButton();
         jComboBox2 = new javax.swing.JComboBox();
         jLabel20 = new javax.swing.JLabel();
+        jLabel21 = new javax.swing.JLabel();
+        jTextField9 = new javax.swing.JTextField();
 
         setClosable(true);
 
@@ -139,6 +166,8 @@ public class NuevaFactura extends javax.swing.JInternalFrame implements TableMod
         jLabel8.setText("Moneda");
 
         jLabel9.setText("Tasa cambio");
+
+        jTextField8.setText("1");
 
         jLabel10.setText("Generación");
 
@@ -207,6 +236,8 @@ public class NuevaFactura extends javax.swing.JInternalFrame implements TableMod
 
         jLabel20.setText("Enviando información....");
 
+        jLabel21.setText("Total en letras");
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -241,9 +272,6 @@ public class NuevaFactura extends javax.swing.JInternalFrame implements TableMod
                                 .addComponent(jTextField16, javax.swing.GroupLayout.PREFERRED_SIZE, 189, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(jLabel13)
-                        .addGap(0, 0, Short.MAX_VALUE))
-                    .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(layout.createSequentialGroup()
                                 .addGap(6, 6, 6)
@@ -275,8 +303,7 @@ public class NuevaFactura extends javax.swing.JInternalFrame implements TableMod
                                                     .addComponent(jTextField4, javax.swing.GroupLayout.PREFERRED_SIZE, 164, javax.swing.GroupLayout.PREFERRED_SIZE)))
                                             .addComponent(jLabel11)
                                             .addGroup(layout.createSequentialGroup()
-                                                .addComponent(jTextField10, javax.swing.GroupLayout.PREFERRED_SIZE, 148, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                                .addGap(154, 154, 154)
                                                 .addComponent(jComboBox1, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
                                     .addComponent(jTextField2, javax.swing.GroupLayout.PREFERRED_SIZE, 211, javax.swing.GroupLayout.PREFERRED_SIZE))
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -309,8 +336,16 @@ public class NuevaFactura extends javax.swing.JInternalFrame implements TableMod
                                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                             .addComponent(jLabel12)
                                             .addComponent(jTextField11, javax.swing.GroupLayout.PREFERRED_SIZE, 783, javax.swing.GroupLayout.PREFERRED_SIZE))))
-                                .addGap(0, 0, Short.MAX_VALUE)))
-                        .addContainerGap())))
+                                .addGap(0, 18, Short.MAX_VALUE)))
+                        .addContainerGap())
+                    .addGroup(layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jLabel13)
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(jLabel21)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(jTextField9, javax.swing.GroupLayout.PREFERRED_SIZE, 881, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addGap(0, 0, Short.MAX_VALUE))))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -343,8 +378,7 @@ public class NuevaFactura extends javax.swing.JInternalFrame implements TableMod
                     .addComponent(jTextField7, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jComboBox2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jTextField8, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jTextField10, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(jTextField8, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel12)
@@ -358,37 +392,40 @@ public class NuevaFactura extends javax.swing.JInternalFrame implements TableMod
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jTextField12, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                        .addGroup(layout.createSequentialGroup()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jLabel19, javax.swing.GroupLayout.PREFERRED_SIZE, 16, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                .addComponent(jLabel18)
+                                .addComponent(jLabel15)))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jTextField17, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jTextField14, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jTextField18, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                                 .addComponent(jLabel16)
                                 .addComponent(jLabel17))
-                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                            .addComponent(jTextField15, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGroup(layout.createSequentialGroup()
-                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                .addComponent(jLabel19, javax.swing.GroupLayout.PREFERRED_SIZE, 16, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                                    .addComponent(jLabel18)
-                                    .addComponent(jLabel15)))
-                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                                .addComponent(jTextField17, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addComponent(jTextField14, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addComponent(jTextField18, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))))
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(jTextField16, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addGap(16, 16, 16)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 195, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jSeparator1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jTextField15, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jTextField16, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel21)
+                    .addComponent(jTextField9, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(18, 18, 18)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 215, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jButton1)
                     .addComponent(jButton2)
                     .addComponent(jLabel20))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap(8, Short.MAX_VALUE))
         );
 
         pack();
@@ -400,7 +437,9 @@ public class NuevaFactura extends javax.swing.JInternalFrame implements TableMod
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         // TODO add your handling code here:
+        if(!enviando){
 ArrayList ArrDatos = new ArrayList();
+sumatotal = 0.0f;
         for(int i=0;i<jTable1.getRowCount();i++){
             String dat = (String)jTable1.getValueAt(i, 1);
             if((dat!=null)&&(dat.length()>0)){
@@ -418,10 +457,12 @@ ArrayList ArrDatos = new ArrayList();
                q = (String)jTable1.getValueAt(i,4);
                 if((q==null)||(q.matches(""))) q = "0";
                 linea.put("totalvalue",q);
+                sumatotal = roundDoubleTwoDecimals(sumatotal + Float.valueOf(q));
                 ArrDatos.add(linea);
             }
         }
         if(ArrDatos.size()>0 && valido()){
+        enviando=true;
         jLabel20.setVisible(true);
         Thread updateThread = new Thread() {
                 public void run() {
@@ -436,7 +477,9 @@ ArrayList ArrDatos = new ArrayList();
         params.put("moneda",(String)jComboBox1.getSelectedItem());
         params.put("tasacambio",jTextField8.getText());
         params.put("generacion",(String)jComboBox2.getSelectedItem());
-        params.put("fechaemision",jTextField10.getText());
+        Date cal = (Date)datePicker.getModel().getValue();
+        SimpleDateFormat format1 = new SimpleDateFormat("dd/MM/yyyy");
+        params.put("fechaemision",format1.format(cal.getTime()));
         params.put("nombrecontribuyente",jTextField11.getText());
         params.put("direccioncontribuyente",jTextField12.getText());
         params.put("nitcontribuyente",jTextField13.getText());
@@ -445,6 +488,8 @@ ArrayList ArrDatos = new ArrayList();
         params.put("total",jTextField16.getText());
         params.put("descuento",jTextField17.getText());
         params.put("exento",jTextField18.getText());
+        params.put("totalletras",jTextField9.getText());
+
 ArrayList ArrDatos = new ArrayList();
         for(int i=0;i<jTable1.getRowCount();i++){
             String dat = (String)jTable1.getValueAt(i, 1);
@@ -468,7 +513,7 @@ ArrayList ArrDatos = new ArrayList();
         }
         String respuesta = APIGeface.enviarData(params,ArrDatos);
         String archivo = Registro.procesaArchivo(respuesta);
-        if(archivo!=""){ 
+        if((archivo!="")&&(!archivo.startsWith("error"))){ 
             int correlativo = Integer.valueOf(opciones.get("factura_actual"));
             int maximo = Integer.valueOf(opciones.get("factura_final"));
             if(correlativo<maximo){
@@ -491,13 +536,31 @@ ArrayList ArrDatos = new ArrayList();
                     System.out.println("Abrir archivo");
                 }
             }
+            reiniciar();
+        }else{
+JOptionPane.showMessageDialog(null, "Se generó un error:"+archivo);
         }
         jLabel20.setVisible(false);
+        enviando=false;
                 }
         };
         updateThread.start();
         }else{
-                JOptionPane.showMessageDialog(null, "Ingrese los datos necesarios");
+            String faltan = "";
+            if(ArrDatos.size()<=0){
+                faltan = "-No ha ingresado productos a facturar";
+            }
+            for(int i = 0;i<falta.size();i++){
+                if(i>0){
+                    faltan = faltan + "\r\n";
+                }
+                faltan = faltan + "-"+(String)falta.get(i);
+            }
+            JOptionPane.showMessageDialog(null, "Ingrese los datos solicitados:\r\n"+faltan);
+            falta.clear();
+        }
+        }else{
+                JOptionPane.showMessageDialog(null, "Los datos están siendo enviados");
         }
     }//GEN-LAST:event_jButton1ActionPerformed
 
@@ -506,30 +569,50 @@ this.dispose();        // TODO add your handling code here:
     }//GEN-LAST:event_jButton2ActionPerformed
 
     public boolean valido(){
+
         boolean res = true;
         if((" "+jTextField2.getText()).trim().length()<=0){
             res=false;
+            falta.add("Resolución");
         }
         if((" "+jTextField3.getText()).trim().length()<=0){
             res=false;
+            falta.add("ID Serie");
+        }
+        if((" "+jTextField7.getText()).trim().length()<=0){
+            res=false;
+            falta.add("Usuario");
         }
         if((" "+jTextField1.getText()).trim().length()<=0){
             res=false;
+            falta.add("No. Factura");
         }
-        if((" "+jTextField10.getText()).trim().length()<=0){
+        if(!datePicker.getModel().isSelected()){
             res=false;
+            falta.add("Fecha emisión");
         }
         if((" "+jTextField13.getText()).trim().length()<=0){
             res=false;
+            falta.add("Nit Contribuyente");
         }
         if((" "+jTextField14.getText()).trim().length()<=0){
             res=false;
+            falta.add("Valor Neto");
         }
         if((" "+jTextField15.getText()).trim().length()<=0){
             res=false;
+            falta.add("IVA");
         }
         if((" "+jTextField16.getText()).trim().length()<=0){
             res=false;
+            falta.add("TOTAL");
+        }else{
+            String txtTotal = jTextField16.getText();
+            Float fTotal = Float.valueOf(txtTotal);
+            if(sumatotal.compareTo(fTotal)!=0){
+                res=false;
+                falta.add("Suma de productos no concuerda con total a facturar");
+            }
         }
         Float total = Float.valueOf("0"+jTextField16.getText());
         Float iva = Float.valueOf("0"+jTextField15.getText());
@@ -544,6 +627,11 @@ this.dispose();        // TODO add your handling code here:
 public static int roundDoubleToUpperInt(double d){
     return (d%1==0.0f)?(int)d:(int)(d+1);
 }
+
+public static Float roundDoubleTwoDecimals(float f){
+DecimalFormat decimalFormat = new DecimalFormat("#.##");
+    return Float.valueOf(decimalFormat.format(f)); // output is 102.24
+}
     
     public void tableChanged(TableModelEvent e){
         int row = e.getFirstRow();
@@ -552,10 +640,14 @@ public static int roundDoubleToUpperInt(double d){
         Object data = model.getValueAt(row,col);
         if(col==0){
             Object o = model.getValueAt(row,3);
-            if(o!=null){
-                Float precio = Float.valueOf((String)o);
-                if(precio>0){
-                    model.setValueAt((Object)String.valueOf(precio*Float.valueOf((String)data)), row, 4);
+            if(o!=null && data!=null){
+                String num = (String)o;
+                String num2 = (String)data;
+                if(num.matches("-?\\d+(\\.\\d+)?") && num2.matches("-?\\d+(\\.\\d+)?")){
+                    Float precio = Float.valueOf((String)o);
+                    if(precio>0){
+                        model.setValueAt((Object)String.valueOf(roundDoubleTwoDecimals(precio*Float.valueOf((String)data))), row, 4);
+                    }
                 }
             }
         }
@@ -565,15 +657,46 @@ public static int roundDoubleToUpperInt(double d){
         if(col==3){
             Object o = model.getValueAt(row,0);
             if(o!=null){
-                Float unidades = Float.valueOf((String)o);
-            if(unidades>0){
-                model.setValueAt((Object)String.valueOf((unidades*Float.valueOf((String)data))), row, 4);
-            }
+                String num = (String)o;
+                String num2 = (String)data;
+                if(num.matches("-?\\d+(\\.\\d+)?") && num2.matches("-?\\d+(\\.\\d+)?")){
+                    Float unidades = Float.valueOf(num);
+                    if(unidades>0){
+                        model.setValueAt((Object)String.valueOf(roundDoubleTwoDecimals((unidades*Float.valueOf(num2)))), row, 4);
+                    }
+                }
             }
         }
         if(col==4){
             
         }
+    }
+    
+    public void reiniciar(){
+    jTable1.removeAll();
+    DefaultTableModel dm = (DefaultTableModel) jTable1.getModel();
+    int rowCount = dm.getRowCount();
+    //Remove rows one by one from the end of the table
+    for (int i = rowCount - 1; i >= 0; i--) {
+        dm.setValueAt("",i, 0);
+        dm.setValueAt("",i, 1);
+        dm.setValueAt("",i, 2);
+        dm.setValueAt("",i, 3);
+        dm.setValueAt("",i, 4);
+    }
+    jTextField1.setText("");
+    jTextField11.setText("");
+    jTextField12.setText("");
+    jTextField13.setText("");
+    jTextField14.setText("");
+    jTextField15.setText("");
+    jTextField16.setText("");
+    jTextField17.setText("");
+    jTextField18.setText("");
+    jTextField7.setText("");
+    jTextField8.setText("");
+    jTextField9.setText("");
+dataInicial();
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -594,6 +717,7 @@ public static int roundDoubleToUpperInt(double d){
     private javax.swing.JLabel jLabel19;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel20;
+    private javax.swing.JLabel jLabel21;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
@@ -605,7 +729,6 @@ public static int roundDoubleToUpperInt(double d){
     private javax.swing.JSeparator jSeparator1;
     private javax.swing.JTable jTable1;
     private javax.swing.JTextField jTextField1;
-    private javax.swing.JTextField jTextField10;
     private javax.swing.JTextField jTextField11;
     private javax.swing.JTextField jTextField12;
     private javax.swing.JTextField jTextField13;
@@ -621,5 +744,6 @@ public static int roundDoubleToUpperInt(double d){
     private javax.swing.JTextField jTextField6;
     private javax.swing.JTextField jTextField7;
     private javax.swing.JTextField jTextField8;
+    private javax.swing.JTextField jTextField9;
     // End of variables declaration//GEN-END:variables
 }

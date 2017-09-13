@@ -48,7 +48,9 @@ public class APIGeface {
 "    <DESCUENTO>{descuento}</DESCUENTO>\n" +
 "    <EXENTO>{exento}</EXENTO>\n" +
 "  </ENCABEZADO>\n"+
-"  <DETALLE>\n" ;
+                "<OPCIONAL>"+
+                "<TOTAL_LETRAS>{totalletras}</TOTAL_LETRAS>"+
+"</OPCIONAL><DETALLE>\n" ;
         Iterator it = mapData.entrySet().iterator();
         String valorfinal = "";
         while(it.hasNext()){
@@ -147,7 +149,8 @@ public class APIGeface {
 "    <FECHAFACTURA>{fechafactura}</FECHAFACTURA>\n" +
 "    <CONCEPTO>{nceconcepto}</CONCEPTO>\n" +
 "  </ENCABEZADO>\n"+
-"  <DETALLE>\n" ;
+                "<OPCIONAL><TOTAL_LETRAS>{totalletras}</TOTAL_LETRAS></OPCIONAL>"+
+"  <DETALLE>\n" ;                
         Iterator it = mapData.entrySet().iterator();
         String valorfinal = "";
         while(it.hasNext()){
@@ -246,6 +249,7 @@ private static String XMLTemplateNDE(Map<String,String> mapData,ArrayList lineas
 "    <FECHAFACTURA>{fechafactura}</FECHAFACTURA>\n" +
 "    <CONCEPTO>{nceconcepto}</CONCEPTO>\n" +
 "  </ENCABEZADO>\n"+
+                                "<OPCIONAL><TOTAL_LETRAS>{totalletras}</TOTAL_LETRAS></OPCIONAL>"+
 "  <DETALLE>\n" ;
         Iterator it = mapData.entrySet().iterator();
         String valorfinal = "";
@@ -343,11 +347,7 @@ private static String XMLTemplateFCam(Map<String,String> mapData,ArrayList linea
 "    <EXENTO>{exento}</EXENTO>\n" +
 "  </ENCABEZADO>\n"+
 "  <OPCIONAL>\n" + 
-"  <OPCIONAL1><![CDATA[{dpi}]]></OPCIONAL1>\n" +
-"  <OPCIONAL47>33</OPCIONAL47>\n" +
-"  <OPCIONAL48>ISR</OPCIONAL48>\n" +
-"  <OPCIONAL49>{porcentaje}</OPCIONAL49>\n" +
-"  <OPCIONAL50>{totalisr}</OPCIONAL50>\n" +
+"  <OPCIONAL2>{periododias}</OPCIONAL2>"+
 "  <TOTAL_LETRAS><![CDATA[{totalletras}]]></TOTAL_LETRAS>\n" +
 "  </OPCIONAL><DETALLE>\n";
         Iterator it = mapData.entrySet().iterator();
@@ -497,7 +497,72 @@ private static String XMLTemplateFEsp(Map<String,String> mapData,ArrayList linea
             http.setRequestMethod("POST"); // PUT is another valid option
             http.setDoOutput(true);
             Map<String,String> arguments = new HashMap<>();
-            String valorfinal = "pXmlFactura="+XMLTemplateFCam(arrData,lineas);
+            String valorfinal = "pXmlFactura="+XMLTemplateFEsp(arrData,lineas);
+            byte[] out = valorfinal.getBytes(StandardCharsets.UTF_8);
+            int length = out.length;
+            http.setFixedLengthStreamingMode(length);
+            http.setRequestProperty("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
+            http.connect();
+            OutputStream os = http.getOutputStream();
+            os.write(out);
+            
+            BufferedReader in = new BufferedReader(new InputStreamReader(http.getInputStream()));
+            String inputLine;
+            StringBuffer res = new StringBuffer();
+
+            while ((inputLine = in.readLine()) != null) {
+                res.append(inputLine);
+            }
+            in.close();
+            System.out.println("resultado:");
+            resultado = res.toString();
+        }catch(Exception e){
+            System.out.println("Error al enviar la información:"+e.getMessage());
+        }
+        return resultado;
+    }
+    
+private static String XMLTemplateAnular(Map<String,String> mapData,String tipodoc){
+        String plantilla =  "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n" +
+"<{tipodoc}>\n" +
+"  <ENCABEZADO>\n" +
+"    <{nomnum}>{nofactura}</{nomnum}>\n" +
+"    <EMPRESA>{empresa}</EMPRESA>\n" +
+"    <SUCURSAL>{sucursal}</SUCURSAL>\n" +
+"    <CAJA>{caja}</CAJA>\n" +
+"    <IDSERIE>{idserie}</IDSERIE>\n" +
+"    <RAZONANULACION><![CDATA[{razonanulacion}]]></RAZONANULACION>\n" +
+"  </ENCABEZADO></{tipodoc}>\n";
+        Iterator it = mapData.entrySet().iterator();
+        String valorfinal = "";
+        while(it.hasNext()){
+            Map.Entry pair = (Map.Entry)it.next();
+            String k = "\\{"+(String)pair.getKey()+"\\}";
+            String v = (String)pair.getValue();
+            plantilla = plantilla.replaceAll(k,v);
+        }
+        System.out.println("plantilla: "+plantilla);
+        try{
+            valorfinal = URLEncoder.encode(plantilla,"UTF-8");
+        }catch(Exception e){
+            System.out.println("valores erroneos, imposible codificar");
+            return "";
+        }
+        return valorfinal;
+    }
+    
+    public static String anularDocumento(Map<String,String> arrData,String endpoint,String tipodoc){
+        Map<String,String> opciones = BDLocal.getOpciones();
+        String pathurl = opciones.get("urlapigeface");
+        String resultado="";
+        try{
+            URL url = new URL(pathurl+endpoint);
+            URLConnection con = url.openConnection();
+            HttpURLConnection http = (HttpURLConnection)con;
+            http.setRequestMethod("POST"); // PUT is another valid option
+            http.setDoOutput(true);
+            Map<String,String> arguments = new HashMap<>();
+            String valorfinal = "pXmlFactura="+XMLTemplateAnular(arrData,tipodoc);
             byte[] out = valorfinal.getBytes(StandardCharsets.UTF_8);
             int length = out.length;
             http.setFixedLengthStreamingMode(length);

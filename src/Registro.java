@@ -35,7 +35,6 @@ public class Registro {
             Element root = doc.getDocumentElement(); 
             NodeList nList = doc.getElementsByTagName("pResultado");
             Element e = (Element)nList.item(0);
-            System.out.println(e.getTextContent());
             if(e.getTextContent().matches("true")){
                 nList = doc.getElementsByTagName("pSerie");
                 e = (Element)nList.item(0);
@@ -68,7 +67,34 @@ public class Registro {
                 fop.close();
                 target = path+"/"+file;
             }else{
-                System.out.println("mensaje de error:"+respuesta);
+                nList = doc.getElementsByTagName("pResultado");
+                e = (Element)nList.item(0);
+                target = "error"+e.getTextContent();
+            }
+        }catch(Exception e){
+            System.out.println("XML inválido");
+        }
+        return target;
+    }
+    
+    public static String procesaAnular(String respuesta){
+        String target="";
+        DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+        DocumentBuilder b;
+        try{
+            b = dbf.newDocumentBuilder();
+            Document doc = b.parse(new InputSource(new StringReader(respuesta)));
+            Element root = doc.getDocumentElement(); 
+            NodeList nList = doc.getElementsByTagName("pResultado");
+            Element e = (Element)nList.item(0);
+            if(e.getTextContent().matches("true")){
+                nList = doc.getElementsByTagName("pDescripcion");
+                e = (Element)nList.item(0);
+                target = e.getTextContent();
+            }else{
+                nList = doc.getElementsByTagName("pDescripcion");
+                e = (Element)nList.item(0);
+                target = "error"+e.getTextContent();
             }
         }catch(Exception e){
             System.out.println("XML inválido");
