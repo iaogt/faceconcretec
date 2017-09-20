@@ -573,7 +573,9 @@ sumatotal = 0.0f;
                 String q = (String)jTable1.getValueAt(i,0);
                 if((q==null)||(q.matches(""))) q = "0";
                 linea.put("quantity",q);
-                linea.put("description",(String)jTable1.getValueAt(i,1));
+                q = (String)jTable1.getValueAt(i,1);
+                if((q==null)) q = "";
+                linea.put("description",q);
                 q = (String)jTable1.getValueAt(i,2);
                 if((q==null)||(q.matches(""))) q = "UNI";
                 linea.put("metric",q);
@@ -709,12 +711,15 @@ this.dispose();        // TODO add your handling code here:
             res=false;
             falta.add("ID Serie");
         }
+        Float exento = Float.valueOf("0"+jTextField18.getText());
         Float total = Float.valueOf("0"+jTextField16.getText());
         Float iva = Float.valueOf("0"+jTextField15.getText());
         Float neto = Float.valueOf("0"+jTextField14.getText());
         if(total!=(iva+neto)){
+            if(total.compareTo(exento)!=0){
             res=false;
             JOptionPane.showMessageDialog(null, "El total no coincide");
+            }
         }
         return res;
     }

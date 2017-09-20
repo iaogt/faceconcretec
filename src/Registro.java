@@ -67,7 +67,7 @@ public class Registro {
                 fop.close();
                 target = path+"/"+file;
             }else{
-                nList = doc.getElementsByTagName("pResultado");
+                nList = doc.getElementsByTagName("pDescripcion");
                 e = (Element)nList.item(0);
                 target = "error"+e.getTextContent();
             }

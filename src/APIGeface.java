@@ -348,6 +348,8 @@ private static String XMLTemplateFCam(Map<String,String> mapData,ArrayList linea
 "  </ENCABEZADO>\n"+
 "  <OPCIONAL>\n" + 
 "  <OPCIONAL2>{periododias}</OPCIONAL2>"+
+"  <OPCIONAL3>{nitexportacion}</OPCIONAL3>"+
+"  <OPCIONAL4><![CDATA[5%]]></OPCIONAL4>"+                
 "  <TOTAL_LETRAS><![CDATA[{totalletras}]]></TOTAL_LETRAS>\n" +
 "  </OPCIONAL><DETALLE>\n";
         Iterator it = mapData.entrySet().iterator();
@@ -441,7 +443,7 @@ private static String XMLTemplateFEsp(Map<String,String> mapData,ArrayList linea
 "    <VALORNETO>{valorneto}</VALORNETO>\n" +
 "    <IVA>{iva}</IVA>\n" +
 "    <TOTAL>{total}</TOTAL>\n" +
-"    <DESCUENTO>{descuento}</DESCUENTO>\n" +
+"    <DESCUENTO>{descuento}</DESCUENTO>\n" +  
 "    <EXENTO>{exento}</EXENTO>\n" +
 "  </ENCABEZADO>\n"+
 "  <OPCIONAL>\n" + 
